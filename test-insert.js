@@ -1,9 +1,3 @@
-const pool = require('./db');
+const {addUser} = require('./queries.js');
 
-pool.query("INSERT INTO users (discord_id, apex_ign, platform) VALUES ('123456789', 'Playerplayer', 'PC')", (err, res) => {
-    if (err) {
-        console.error('Error executing query', err.stack);  
-    } else {
-        console.log('Query executed successfully');
-    }
-});
+addUser('987654321', 'Playerlitte', 'PC');
