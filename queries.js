@@ -10,5 +10,14 @@ function addUser(discordId, apexIgn, platform) {
     }
 });
 }
+function addRankSnapshot(userId, rankPoints, rankTier, rankDivision) {
+    pool.query(`INSERT INTO rank_snapshots (user_id, rp, rank_tier, rank_division) VALUES ('${userId}', '${rankPoints}', '${rankTier}', '${rankDivision}')`, (err, res) => {
+        if (err) {
+            console.error('Error executing query', err.stack);
+        } else {
+            console.log('Rank snapshot added successfully');
+        }
+    });
+}
 
-module.exports = { addUser };
+module.exports = { addUser, addRankSnapshot  };

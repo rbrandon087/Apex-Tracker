@@ -1,3 +1,4 @@
-const {addUser} = require('./queries.js');
+const {addUser, addRankSnapshot} = require('./queries.js');
 
-addUser('987654321', 'Playerlitte', 'PC');
+addUser('8056789088', 'LilBou', 'PC');
+addRankSnapshot('1', '3400', 'Gold', '2');
