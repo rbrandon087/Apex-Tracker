@@ -30,4 +30,18 @@ function addLegendStat(userId, legendName, kills, wins, matchesPlayed) {
     });
 }
 
-module.exports = { addUser, addRankSnapshot, addLegendStat };
+function addGuild(discordGuildId, notifyChannelId = null) {
+  pool.query(
+    'INSERT INTO guilds (discord_guild_id, notify_channel_id) VALUES ($1, $2)',
+    [discordGuildId, notifyChannelId],
+    (err, res) => {
+      if (err) {
+        console.error('Error executing query', err);
+      } else {
+        console.log('Guild added successfully');
+      }
+    }
+  );
+}
+
+module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild };
