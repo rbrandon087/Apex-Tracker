@@ -20,4 +20,14 @@ function addRankSnapshot(userId, rankPoints, rankTier, rankDivision) {
     });
 }
 
-module.exports = { addUser, addRankSnapshot  };
+function addLegendStat(userId, legendName, kills, wins, matchesPlayed) {
+    pool.query(`INSERT INTO legend_stats (user_id, legend_name, kills, wins, matches_played) VALUES ('${userId}', '${legendName}', '${kills}', '${wins}', '${matchesPlayed}')`, (err, res) => {
+        if (err) {
+            console.error('Error executing query', err.stack);
+        } else {
+            console.log('Legend stats added successfully');
+        }
+    });
+}
+
+module.exports = { addUser, addRankSnapshot, addLegendStat };
