@@ -98,4 +98,34 @@ async function fetchRankSnapshots() {
     }
 }
 
-module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots };
+// Fetches all legend stats from the legend_stats table.
+// Takes: no arguments.
+// Returns: an array of legend stat rows.
+// Throws an error if the query fails.
+
+async function fetchLegendStats() {
+    try {
+        const results = await pool.query('SELECT * FROM legend_stats');
+        return results.rows;
+    } catch (err) {
+        console.error('Error executing query', err);
+        throw err;
+    }
+}
+
+// Fetches all guilds from the guilds table.
+// Takes: no arguments.
+// Returns: an array of guild rows.
+// Throws an error if the query fails.
+
+async function fetchGuilds() {
+    try {
+        const results = await pool.query('SELECT * FROM guilds');
+        return results.rows;
+    } catch (err) {
+        console.error('Error executing query', err);
+        throw err;
+    }
+}
+
+module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchLegendStats, fetchGuilds };
