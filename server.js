@@ -1,5 +1,5 @@
 const express = require('express');
-const { addUser, addRankSnapshot, addLegendStat, addGuild } = require('./queries.js');
+const { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots } = require('./queries.js');
 
 const server = express();
 server.use(express.json());
@@ -31,7 +31,7 @@ server.post('/rank-snapshots', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-})
+});
 
 server.post('/legend-stats', async (req, res) => {
   const { userId, legendName, kills, wins, matchesPlayed } = req.body;
@@ -41,7 +41,7 @@ server.post('/legend-stats', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-})
+});
 
  server.post('/guilds', async (req, res) => { 
   const { discordGuildId, notifyChannelId } = req.body;
@@ -51,4 +51,23 @@ server.post('/legend-stats', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
- })
+});
+
+
+ server.get('/users' , async (req, res) => {
+  try {
+    const users = await fetchUsers();
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+server.get('/rank-snapshots', async (req, res) => {
+  try {
+    const rankSnapshots = await fetchRankSnapshots();
+    res.status(200).json(rankSnapshots);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
