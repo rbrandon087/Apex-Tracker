@@ -98,6 +98,21 @@ async function fetchRankSnapshots() {
     }
 }
 
+
+// Fetches all rank snapshots for a specific user from the rank_snapshots table.
+// Takes: userId (required).
+// Returns: an array of rank snapshot rows for the specified user.
+// Throws an error if the query fails.
+async function fetchRankSnapshotsByUser(userId) {
+    try {
+        const results = await pool.query('SELECT * FROM rank_snapshots WHERE user_id = $1', [userId]);
+        return results.rows;
+    } catch (err) {
+        console.error('Error executing query', err);
+        throw err;
+    }
+}
+
 // Fetches all legend stats from the legend_stats table.
 // Takes: no arguments.
 // Returns: an array of legend stat rows.
@@ -128,4 +143,4 @@ async function fetchGuilds() {
     }
 }
 
-module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchLegendStats, fetchGuilds };
+module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchRankSnapshotsByUser, fetchLegendStats, fetchGuilds };
