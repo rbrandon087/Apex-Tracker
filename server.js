@@ -1,5 +1,5 @@
 const express = require('express');
-const { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchLegendStats, fetchGuilds, fetchRankSnapshotsByUser } = require('./queries.js');
+const { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchLegendStats, fetchGuilds, fetchRankSnapshotsByUser, fetchLegendStatsByUser } = require('./queries.js');
 
 const server = express();
 server.use(express.json());
@@ -109,6 +109,19 @@ server.get('/users/:id/rank-snapshots', async (req, res) => {
   try {
     const rankSnapshots = await fetchRankSnapshotsByUser(id);
     res.status(200).json(rankSnapshots);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+//GET endpoint for fetching all legend stats by a specific user
+//fetch all legend stats for a specific user
+server.get('/users/:id/legend-stats', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const legendStats = await fetchLegendStatsByUser(id);
+    res.status(200).json(legendStats);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

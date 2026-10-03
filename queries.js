@@ -128,6 +128,20 @@ async function fetchLegendStats() {
     }
 }
 
+// Fetches all legend stats for a specific user from the legend_stats table.
+// Takes: userID (required).
+// Returns: an array of legend stat rows for the specified user.
+// Throws an error if the query fails.
+async function fetchLegendStatsByUser(userId) {
+    try {
+        const results = await pool.query('SELECT * FROM legend_stats WHERE user_id = $1', [userId]);
+        return results.rows;
+    } catch (err) {
+        console.error('Error executing query', err);
+        throw err;
+    }
+}
+
 // Fetches all guilds from the guilds table.
 // Takes: no arguments.
 // Returns: an array of guild rows.
@@ -143,4 +157,4 @@ async function fetchGuilds() {
     }
 }
 
-module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchRankSnapshotsByUser, fetchLegendStats, fetchGuilds };
+module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchRankSnapshotsByUser, fetchLegendStats, fetchLegendStatsByUser, fetchGuilds };
