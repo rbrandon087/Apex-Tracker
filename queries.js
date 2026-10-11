@@ -5,9 +5,9 @@ const pool = require('./db');
 // Returns: the newly created user row (including its auto-generated id and created_at).
 // Throws an error if the insert fails (e.g. duplicate discord_id, or duplicate apex_ign+platform pair).
 
-async function addUser(discordId, apexIgn, platform) {
+async function addUser(discordId, apexIgn, platform, apexUid ) {
     try {
-        const result = await pool.query(`INSERT INTO users (discord_id, apex_ign, platform) VALUES ($1, $2, $3) RETURNING *`, [discordId, apexIgn, platform]);
+        const result = await pool.query(`INSERT INTO users (discord_id, apex_ign, platform, apex_uid) VALUES ($1, $2, $3, $4) RETURNING *`, [discordId, apexIgn, platform, apexUid]);
         console.log('User added successfully', result.rows[0]);
         return result.rows[0];
     } catch (err) {

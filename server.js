@@ -1,6 +1,6 @@
 const express = require('express');
 const { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchLegendStats, fetchGuilds, fetchRankSnapshotsByUser, fetchLegendStatsByUser } = require('./queries.js');
-
+const { lookApexUser } = require('./apexApi.js');
 const server = express();
 server.use(express.json());
 
@@ -17,10 +17,15 @@ server.listen(3000, () => {
 server.post('/users', async (req, res) => {
   const { discordId, apexIgn, platform } = req.body;
   try {
-    const user = await addUser(discordId, apexIgn, platform);
+    const player = await lookApexUser(apexIgn, platform);
+    const user = await addUser(discordId, apexIgn, platform, player.uid);
     res.status(201).json(user);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (err.code === '23505') {
+      res.status(409).json({ error: err.message });
+    } else {
+      res.status(404).json({ error: err.message });
+    }
   }
 });
 
