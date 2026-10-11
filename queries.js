@@ -82,6 +82,19 @@ async function fetchUsers() {
         throw err;
     }
 }
+// Fetches all active users from the users table.
+// Takes: no arguments.
+// Returns: an array of active user rows (users with a non-null apex_uid).
+// Throws an error if the query fails.
+async function fetchActiveUsers() {
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE apex_uid IS NOT NULL');
+        return result.rows;
+    } catch (err) {
+        console.error('Error executing query', err);
+        throw err;
+    }
+}
 
 // Fetches all rank snapshots from the rank_snapshots table.
 // Takes: no arguments.
@@ -157,4 +170,4 @@ async function fetchGuilds() {
     }
 }
 
-module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchRankSnapshotsByUser, fetchLegendStats, fetchLegendStatsByUser, fetchGuilds };
+module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchRankSnapshotsByUser, fetchLegendStats, fetchLegendStatsByUser, fetchGuilds, fetchActiveUsers };
