@@ -14,7 +14,9 @@ async function lookApexUser(apexIgn, platform) {
             headers: { Authorization: process.env.APEX_API_KEY }
     });
     const data = await response.json();
-    console.log(response.status, data.Error);
+    if (!data.global || !data.global.uid) {
+        throw new Error(data.Error || 'Failed to fetch Apex user data');
+    }
     return {
         uid: data.global.uid,
         rankPoints: data.global.rank.rankScore,
