@@ -17,3 +17,4 @@ async function pollActiveUsers() {
 }
 
 pollActiveUsers();
+setInterval(pollActiveUsers, 60 * 1000); // Poll every 15 minutes
