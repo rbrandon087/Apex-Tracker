@@ -1,6 +1,7 @@
 const express = require('express');
-const { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchLegendStats, fetchGuilds, fetchRankSnapshotsByUser, fetchLegendStatsByUser } = require('./queries.js');
+const { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchLatestRankSnapshotByUser, fetchLegendStats, fetchGuilds, fetchRankSnapshotsByUser, fetchLegendStatsByUser, fetchUserByDiscordId } = require('./queries.js');
 const { lookApexUser } = require('./apexApi.js');
+
 const server = express();
 server.use(express.json());
 
@@ -8,10 +9,6 @@ server.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
-server.listen(3000, () => {
-  console.log('Server is running on port 3000');
-});
- 
 //POST endpoints for creating new resources
 //create new user with discordId, apexIgn, and platform
 server.post('/users', async (req, res) => {
@@ -40,6 +37,7 @@ server.post('/rank-snapshots', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 //POST endpoint for creating a new legend stat
 //create new legend stat with userId, legendName, kills, wins, and matchesPlayed
 server.post('/legend-stats', async (req, res) => {
@@ -51,9 +49,10 @@ server.post('/legend-stats', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 //POST endpoint for creating a new guild
 //create new guild with discordGuildId and optional notifyChannelId
- server.post('/guilds', async (req, res) => { 
+server.post('/guilds', async (req, res) => {
   const { discordGuildId, notifyChannelId } = req.body;
   try {
     const guild = await addGuild(discordGuildId, notifyChannelId);
@@ -65,7 +64,7 @@ server.post('/legend-stats', async (req, res) => {
 
 //GET endpoints for fetching resources
 //fetch all users
- server.get('/users' , async (req, res) => {
+server.get('/users', async (req, res) => {
   try {
     const users = await fetchUsers();
     res.status(200).json(users);
@@ -75,7 +74,6 @@ server.post('/legend-stats', async (req, res) => {
 });
 
 //fetch all rank snapshots
-//GET endpoint for fetching all rank snapshots
 server.get('/rank-snapshots', async (req, res) => {
   try {
     const rankSnapshots = await fetchRankSnapshots();
@@ -86,7 +84,6 @@ server.get('/rank-snapshots', async (req, res) => {
 });
 
 //fetch all legend stats
-//GET endpoint for fetching all legend stats
 server.get('/legend-stats', async (req, res) => {
   try {
     const legendStats = await fetchLegendStats();
@@ -97,7 +94,6 @@ server.get('/legend-stats', async (req, res) => {
 });
 
 //fetch all guilds
-//fetch all guilds for a specific user
 server.get('/guilds', async (req, res) => {
   try {
     const guilds = await fetchGuilds();
@@ -107,7 +103,6 @@ server.get('/guilds', async (req, res) => {
   }
 });
 
-//GET endpoint for fetching all rank snapshots by a specific user
 //fetch all rank snapshots for a specific user
 server.get('/users/:id/rank-snapshots', async (req, res) => {
   const { id } = req.params;
@@ -119,8 +114,22 @@ server.get('/users/:id/rank-snapshots', async (req, res) => {
   }
 });
 
+//fetch the most recent rank snapshot for a specific user
+server.get('/users/:id/rank-snapshots/latest', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const rankSnapshot = await fetchLatestRankSnapshotByUser(id);
 
-//GET endpoint for fetching all legend stats by a specific user
+    if (!rankSnapshot) {
+      res.status(404).json({ error: 'No rank snapshots yet for that user' });
+    } else {
+      res.status(200).json(rankSnapshot);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 //fetch all legend stats for a specific user
 server.get('/users/:id/legend-stats', async (req, res) => {
   const { id } = req.params;
@@ -130,4 +139,24 @@ server.get('/users/:id/legend-stats', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+//fetch one user by Discord ID
+server.get('/users/discord/:discordId', async (req, res) => {
+  const { discordId } = req.params;
+  try {
+    const user = await fetchUserByDiscordId(discordId);
+
+    if (!user) {
+      res.status(404).json({ error: 'No user registered with that Discord ID' });
+    } else {
+      res.status(200).json(user);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+server.listen(3000, () => {
+  console.log('Server is running on port 3000');
 });

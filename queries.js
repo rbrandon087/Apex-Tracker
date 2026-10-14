@@ -1,11 +1,11 @@
 const pool = require('./db');
 
 // Inserts a new user into the users table.
-// Takes: discordId, apexIgn, platform (all required).
+// Takes: discordId, apexIgn, platform, apexUid (all required).
 // Returns: the newly created user row (including its auto-generated id and created_at).
 // Throws an error if the insert fails (e.g. duplicate discord_id, or duplicate apex_ign+platform pair).
 
-async function addUser(discordId, apexIgn, platform, apexUid ) {
+async function addUser(discordId, apexIgn, platform, apexUid) {
     try {
         const result = await pool.query(`INSERT INTO users (discord_id, apex_ign, platform, apex_uid) VALUES ($1, $2, $3, $4) RETURNING *`, [discordId, apexIgn, platform, apexUid]);
         console.log('User added successfully', result.rows[0]);
@@ -18,7 +18,7 @@ async function addUser(discordId, apexIgn, platform, apexUid ) {
 
 // Inserts a new rank snapshot into the rank_snapshots table.
 // Takes: userId, rankPoints, rankTier, rankDivision (all required).
-// Returns: the newly created rank snapshot row (including its auto-generated id and created_at).
+// Returns: the newly created rank snapshot row (including its auto-generated id and captured_at).
 // Throws an error if the insert fails.
 
 async function addRankSnapshot(userId, rankPoints, rankTier, rankDivision) {
@@ -34,7 +34,7 @@ async function addRankSnapshot(userId, rankPoints, rankTier, rankDivision) {
 
 // Inserts a new legend stat into the legend_stats table.
 // Takes: userId, legendName, kills, wins, matchesPlayed (all required).
-// Returns: the newly created legend stat row (including its auto-generated id and created_at).
+// Returns: the newly created legend stat row (including its auto-generated id).
 // Throws an error if the insert fails.
 
 async function addLegendStat(userId, legendName, kills, wins, matchesPlayed) {
@@ -50,7 +50,7 @@ async function addLegendStat(userId, legendName, kills, wins, matchesPlayed) {
 
 // Inserts a new guild into the guilds table.
 // Takes: discordGuildId (required), notifyChannelId (optional).
-// Returns: the newly created guild row (including its auto-generated id and created_at).
+// Returns: the newly created guild row (including its auto-generated id and added_at).
 // Throws an error if the insert fails (e.g. duplicate discord_guild_id).
 
 async function addGuild(discordGuildId, notifyChannelId = null) {
@@ -67,7 +67,6 @@ async function addGuild(discordGuildId, notifyChannelId = null) {
     }
 }
 
-
 // Fetches all users from the users table.
 // Takes: no arguments.
 // Returns: an array of user rows.
@@ -82,14 +81,31 @@ async function fetchUsers() {
         throw err;
     }
 }
+
 // Fetches all active users from the users table.
 // Takes: no arguments.
 // Returns: an array of active user rows (users with a non-null apex_uid).
 // Throws an error if the query fails.
+
 async function fetchActiveUsers() {
     try {
         const result = await pool.query('SELECT * FROM users WHERE apex_uid IS NOT NULL');
         return result.rows;
+    } catch (err) {
+        console.error('Error executing query', err);
+        throw err;
+    }
+}
+
+// Fetches a single user by their Discord ID from the users table.
+// Takes: discordId (required).
+// Returns: the user row, or undefined if no user has that Discord ID.
+// Throws an error if the query fails.
+
+async function fetchUserByDiscordId(discordId) {
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE discord_id = $1', [discordId]);
+        return result.rows[0];
     } catch (err) {
         console.error('Error executing query', err);
         throw err;
@@ -111,15 +127,30 @@ async function fetchRankSnapshots() {
     }
 }
 
-
 // Fetches all rank snapshots for a specific user from the rank_snapshots table.
 // Takes: userId (required).
 // Returns: an array of rank snapshot rows for the specified user.
 // Throws an error if the query fails.
+
 async function fetchRankSnapshotsByUser(userId) {
     try {
         const results = await pool.query('SELECT * FROM rank_snapshots WHERE user_id = $1', [userId]);
         return results.rows;
+    } catch (err) {
+        console.error('Error executing query', err);
+        throw err;
+    }
+}
+
+// Fetches the most recent rank snapshot for a specific user.
+// Takes: userId (required).
+// Returns: the newest rank snapshot row, or undefined if the user has none yet.
+// Throws an error if the query fails.
+
+async function fetchLatestRankSnapshotByUser(userId) {
+    try {
+        const results = await pool.query('SELECT * FROM rank_snapshots WHERE user_id = $1 ORDER BY captured_at DESC LIMIT 1', [userId]);
+        return results.rows[0];
     } catch (err) {
         console.error('Error executing query', err);
         throw err;
@@ -142,9 +173,10 @@ async function fetchLegendStats() {
 }
 
 // Fetches all legend stats for a specific user from the legend_stats table.
-// Takes: userID (required).
+// Takes: userId (required).
 // Returns: an array of legend stat rows for the specified user.
 // Throws an error if the query fails.
+
 async function fetchLegendStatsByUser(userId) {
     try {
         const results = await pool.query('SELECT * FROM legend_stats WHERE user_id = $1', [userId]);
@@ -170,4 +202,4 @@ async function fetchGuilds() {
     }
 }
 
-module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchRankSnapshots, fetchRankSnapshotsByUser, fetchLegendStats, fetchLegendStatsByUser, fetchGuilds, fetchActiveUsers };
+module.exports = { addUser, addRankSnapshot, addLegendStat, addGuild, fetchUsers, fetchActiveUsers, fetchUserByDiscordId, fetchRankSnapshots, fetchRankSnapshotsByUser, fetchLatestRankSnapshotByUser, fetchLegendStats, fetchLegendStatsByUser, fetchGuilds };

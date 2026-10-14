@@ -20,6 +20,8 @@ const commands = [
           { name: 'XBOX', value: 'X1' }
         )
     ),
+
+  new SlashCommandBuilder().setName('rank').setDescription('Show your current ranked rank'),
 ].map(command => command.toJSON());
 
 const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
